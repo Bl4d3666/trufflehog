@@ -1,8 +1,7 @@
-package airtableapikey
+package heroku
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -11,12 +10,7 @@ import (
 	"github.com/trufflesecurity/trufflehog/v3/pkg/engine/ahocorasick"
 )
 
-var (
-	validPattern   = "app_pOcv67-Yuztyq / key_Yuztyq-pOcv67"
-	invalidPattern = "app_pOcv67%Yuztyq/key_Yuztyq*pOcv67"
-)
-
-func TestAirTableApiKey_Pattern(t *testing.T) {
+func TestHeroku_Pattern(t *testing.T) {
 	d := Scanner{}
 	ahoCorasickCore := ahocorasick.NewAhoCorasickCore([]detectors.Detector{d})
 
@@ -26,22 +20,22 @@ func TestAirTableApiKey_Pattern(t *testing.T) {
 		want  []string
 	}{
 		{
-			name:  "valid pattern - with key",
-			input: fmt.Sprintf("airtable secrets: %s", validPattern),
-			want:  []string{"app_pOcv67-Yuztyq:key_Yuztyq-pOcv67"},
-		},
-		{
-			name: "valid pattern - with personal key",
-			input: `document.addEventListener('DOMContentLoaded', function () {
-    base = new Airtable({ apiKey: 'patHSL6ZkPWx8Rkva.f0b2c1970c1cd8b5126d04eaf59d9fd500a39736c73bbb3a471fsf7eb3561ec0' }).base('appiiuioD2lBj2DaJ');
-
-   reloadData();`,
-			want: []string{"appiiuioD2lBj2DaJ:patHSL6ZkPWx8Rkva.f0b2c1970c1cd8b5126d04eaf59d9fd500a39736c73bbb3a471fsf7eb3561ec0"},
-		},
-		{
-			name:  "invalid pattern",
-			input: fmt.Sprintf("airtable secrets: '%s'", invalidPattern),
-			want:  nil,
+			name: "valid pattern",
+			input: `[{
+					"_id": "1a8d0cca-e1a9-4318-bc2f-f5658ab2dcb5",
+					"name": "Heroku",
+					"type": "Detector",
+					"api": true,
+					"authentication_type": "",
+					"verification_url": "https://api.example.com/example",
+					"test_secrets": {
+						"heroku_secret": "bAf8bA7d-7088-07ce-3f87-7ec21653297d"
+					},
+					"expected_response": "200",
+					"method": "GET",
+					"deprecated": false
+				}]`,
+			want: []string{"bAf8bA7d-7088-07ce-3f87-7ec21653297d"},
 		},
 	}
 

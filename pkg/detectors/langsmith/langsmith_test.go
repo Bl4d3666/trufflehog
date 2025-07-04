@@ -1,25 +1,15 @@
-package roninapp
+package langsmith
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-
 	"github.com/trufflesecurity/trufflehog/v3/pkg/detectors"
 	"github.com/trufflesecurity/trufflehog/v3/pkg/engine/ahocorasick"
 )
 
-var (
-	validKey   = "tmvSxOOxP32WgoPfF2tWEmtsq8"
-	invalidKey = "tmvSxOOxP32Wg?PfF2tWEmtsq8"
-	validId    = "XEZOhulA1oP7vPSc4K"
-	invalidId  = "?EZOhulA1oP7vPSc4?"
-	keyword    = "roninapp"
-)
-
-func TestRoninApp_Pattern(t *testing.T) {
+func TestLangsmith_Pattern(t *testing.T) {
 	d := Scanner{}
 	ahoCorasickCore := ahocorasick.NewAhoCorasickCore([]detectors.Detector{d})
 	tests := []struct {
@@ -28,13 +18,18 @@ func TestRoninApp_Pattern(t *testing.T) {
 		want  []string
 	}{
 		{
-			name:  "valid pattern - with keyword roninapp",
-			input: fmt.Sprintf("%s token - '%s'\n%s token - '%s'\n", keyword, validKey, keyword, validId),
-			want:  []string{validKey, validKey},
+			name:  "typical pattern",
+			input: "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",
+			want:  []string{"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"},
+		},
+		{
+			name:  "finds all matches",
+			input: `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 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`,
+			want:  []string{"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", "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"},
 		},
 		{
 			name:  "invalid pattern",
-			input: fmt.Sprintf("%s token - '%s'\n%s token - '%s'\n", keyword, invalidKey, keyword, invalidId),
+			input: "lsv2_pt_1e0430d40fc14d3fj03397b9e6z46289_2b9036edd2",
 			want:  []string{},
 		},
 	}
